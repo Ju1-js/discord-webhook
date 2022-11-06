@@ -1,0 +1,98 @@
+body {
+  font-family: "Times New Roman";
+  background: #eee;
+  /* This is just a helper in case the element has a transparent background or white colors. */
+}
+
+div.embed_wrapper {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+  color: #dcddde;
+  display: grid;
+  font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  grid-auto-flow: row;
+  line-height: 16px;
+  padding: 0.125rem 0;
+  row-gap: 0.25rem;
+  text-indent: 0;
+}
+
+div.embed_color {
+  -webkit-tap-highlight-color: transparent;
+  align-self: start;
+  background-color: #2f3136;
+  border-color: #58b9ff;
+  border-left: 4px solid;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: #dcddde;
+  display: grid;
+  font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  justify-self: start;
+  line-height: 16px;
+  max-width: 332px;
+  text-align: left;
+  unicode-bidi: plaintext;
+}
+
+div.embed_text {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+  color: #dcddde;
+  display: inline-grid;
+  font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
+  line-height: 16px;
+  padding: 0.5rem 1rem 1rem 0.75rem;
+  text-align: left;
+  unicode-bidi: plaintext;
+}
+
+span.embed_title_wrapper {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+  color: #dcddde;
+  display: inline-block;
+  font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  grid-column-end: 2;
+  grid-column-start: 1;
+  line-height: 16px;
+  margin: 8px 0 0;
+  min-width: 0;
+  text-align: left;
+  unicode-bidi: plaintext;
+}
+
+div.embed_text {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+  color: #fff;
+  font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.375;
+  overflow-wrap: break-word;
+  text-align: left;
+  unicode-bidi: plaintext;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+div.embed_text.desc {
+  font-weight: 300;
+}
+
+div.embed_description_wrapper {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+  color: #dcddde;
+  font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  grid-column-end: 2;
+  grid-column-start: 1;
+  line-height: 16px;
+  margin: 8px 0 0;
+  min-width: 0;
+  text-align: left;
+  unicode-bidi: plaintext;
+}
