@@ -16,15 +16,7 @@ webhook_footer = "Last updated"
 webhook_avatar_name = "Gradio"
 webhook_avatar_url = "https://gradio.app/assets/img/logo.png"
 webhook_color = 15376729
-output = ""
 
-_webhook_content = None
-_webhook_title = None
-_webhook_desciption = None
-_webhook_footer = None
-_webhook_avatar_name = None
-_webhook_avatar_url = None
-_webhook_color = None
 # _webhook_button = None
 
 def init(demo: gr.Blocks, app: FastAPI):
@@ -72,7 +64,6 @@ def on_ui_tabs():
         with gr.Row().style(equal_height=False):
             with gr.Column(variant='panel'):
                 gr.HTML(value="Edit the embed posted to Discord")
-                global _webhook_content, _webhook_title, _webhook_desciption, _webhook_footer, _webhook_avatar_name, _webhook_avatar_url, _webhook_color
                 _webhook_content = gr.Textbox(value=webhook_content,interactive=True,label="Content", type="text")
                 _webhook_title = gr.Textbox(value=webhook_title,interactive=True,label="Title")
                 _webhook_desciption = gr.Textbox(value=webhook_desciption,interactive=True,label='Description')
@@ -82,7 +73,14 @@ def on_ui_tabs():
                 _webhook_color = gr.ColorPicker(value="#" + format(webhook_color, 'X'),interactive=True,label='Color')
                 # _webhook_button = gr.Button(label="Generate Embed", variant="primary").click(fn=make_embed,inputs=[_webhook_button])
             with gr.Column():
-                gr.HTML(value=output)
+                _output = gr.HTML(value="<div>Ey</div>",elem_id="output",show_label=False)
+        _webhook_content.change(fn=save_content, inputs=[_webhook_content], outputs=[_output])
+        _webhook_title.change(fn=save_title, inputs=[_webhook_title], outputs=[_output])
+        _webhook_desciption.change(fn=save_desciption, inputs=[_webhook_desciption], outputs=[_output])
+        _webhook_footer.change(fn=save_footer, inputs=[_webhook_footer], outputs=[_output])
+        _webhook_avatar_name.change(fn=save_avatar_name, inputs=[_webhook_avatar_name], outputs=[_output])
+        _webhook_avatar_url.change(fn=save_avatar_url, inputs=[_webhook_avatar_url], outputs=[_output])
+        _webhook_color.change(fn=save_color, inputs=[_webhook_color], outputs=[_output])
     return (discord_webhook , "Discord Webhook", "discord_webhook"),
 
 def on_ui_settings():
@@ -93,25 +91,45 @@ def on_ui_settings():
     shared.opts.add_option("webhook_url", shared.OptionInfo("", "Webhook to share the public url", section=section))
     shared.opts.add_option("webhook_share_url", shared.OptionInfo("", "Webhook to share the generated images", section=section))
 
-def save_embed(key, value):
-    print(f"Id: {value.elem_id}")
-    global webhook_content, webhook_title, webhook_desciption, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color, output
+def save_content(input):
+    save_embed(input, "content")
+
+def save_title(input):
+    save_embed(input, "title")
+
+def save_desciption(input):
+    save_embed(input, "description")
+
+def save_footer(input):
+    save_embed(input, "footer")
+
+def save_avatar_name(input):
+    save_embed(input, "avatar_name")
+
+def save_avatar_url(input):
+    save_embed(input, "avatar_url")
+
+def save_color(input):
+    save_embed(input, "color")
+
+def save_embed(input, key):
+    global webhook_content, webhook_title, webhook_desciption, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
     if key == "content":
-        webhook_content = value
+        webhook_content = input
     elif key == "title":
-        webhook_title = value
+        webhook_title = input
     elif key == "desciption":
-        webhook_desciption = value
+        webhook_desciption = input
     elif key == "footer":
-        webhook_footer = value
+        webhook_footer = input
     elif key == "avatar_name":
-        webhook_avatar_name = value
+        webhook_avatar_name = input
     elif key == "avatar_url":
-        webhook_avatar_url = value
+        webhook_avatar_url = input
     elif key == "color":
-        webhook_color = int(value.replace("#", ""), 16)
+        webhook_color = int(input[1:], 16)
     write_embed()
-    output = generate_html()
+    return generate_html()
 
 def generate_embed():
     global webhook_content, webhook_title, webhook_desciption, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
@@ -147,7 +165,7 @@ def load_embed():
 def generate_html():
     global webhook_content, webhook_title, webhook_desciption, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
     _webhook_color = "#" + format(webhook_color, 'X')
-    html = f'<div class="embed_wrapper"><div style="border-color: {_webhook_color}; max-width: 332px;" class="embed_color"><div class="sc-3qrykn-0 bdFBtt"><span class="embed_title_wrapepr"><div class="embed_text">{webhook_title}</div></span><div class="embed_description_wrapper"><div class="embed_text desc">{webhook_desciption}</div></div></div></div></div>'
+    html = f'<div class="embed_wrapper"><div style="border-color: {_webhook_color}; max-width: 332px" class="embed_color"><div class="embed_text"><span class="embed_title_wrapper">{webhook_title}</span><div class="embed_description_wrapper"><div class="embed_text desc">{webhook_desciption}</div></div></div></div></div>'
     return html
 
 script_callbacks.on_app_started(init)
