@@ -73,7 +73,7 @@ def on_ui_tabs():
                 _webhook_color = gr.ColorPicker(value="#" + format(webhook_color, 'X'),interactive=True,label='Color')
                 # _webhook_button = gr.Button(label="Generate Embed", variant="primary").click(fn=make_embed,inputs=[_webhook_button])
             with gr.Column():
-                _output = gr.HTML(value="<div>Ey</div>",elem_id="output",show_label=False)
+                _output = gr.HTML(show_label=False)
         _webhook_content.change(fn=save_content, inputs=[_webhook_content], outputs=[_output])
         _webhook_title.change(fn=save_title, inputs=[_webhook_title], outputs=[_output])
         _webhook_desciption.change(fn=save_desciption, inputs=[_webhook_desciption], outputs=[_output])
