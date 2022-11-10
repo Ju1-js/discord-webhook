@@ -183,7 +183,7 @@ script_callbacks.on_ui_tabs(on_ui_tabs)
 # - Option to share all generated images - Off by default
 
 # WORKING ON:
-# Embed visualizer - 1/2 (Share Url Done)
+# Embed visualizer - 1/2 (Share Url Half Done), (Display Footer Message, Avatar Name, Avatar Url, Content(Message))
 
 # DONE:
 # Share public url to Discord
