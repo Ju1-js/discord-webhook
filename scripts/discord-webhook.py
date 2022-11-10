@@ -177,6 +177,7 @@ script_callbacks.on_ui_tabs(on_ui_tabs)
 # Add placeholder (hints) to textboxes
 # Button to send a new embed
 # Customize README
+# Add tooltips to settings
 # Image sharing implementaion:
 # - Embed customizer for sharing images
 # - Button to share generated images
