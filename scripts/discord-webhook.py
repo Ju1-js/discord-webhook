@@ -11,16 +11,14 @@ dir = scripts.basedir()
 embed_url = "http://127.0.0.1:7860/"
 webhook_content = ""
 webhook_title = "Current Stable Diffusion URL"
-webhook_desciption = "The current url is:"
+webhook_description = "The current url is:"
 webhook_footer = "Last updated"
 webhook_avatar_name = "Gradio"
 webhook_avatar_url = "https://gradio.app/assets/img/logo.png"
 webhook_color = 15376729
-
-# _webhook_button = None
+refresh_symbol = '\U0001f504'  # 🔄
 
 def init(demo: gr.Blocks, app: FastAPI):
-    load_embed()
     if shared.cmd_opts.share:
         post_share_url(demo)
         global embed_url
@@ -66,17 +64,20 @@ def on_ui_tabs():
                 gr.HTML(value="Edit the embed posted to Discord")
                 _webhook_content = gr.Textbox(value=webhook_content,interactive=True,label="Content", type="text")
                 _webhook_title = gr.Textbox(value=webhook_title,interactive=True,label="Title")
-                _webhook_desciption = gr.Textbox(value=webhook_desciption,interactive=True,label='Description')
+                _webhook_description = gr.Textbox(value=webhook_description,interactive=True,label='Description')
                 _webhook_footer = gr.Textbox(value=webhook_footer,interactive=True,label='Footer Message')
                 _webhook_avatar_name = gr.Textbox(value=webhook_avatar_name,interactive=True,label='Avatar Name')
                 _webhook_avatar_url = gr.Textbox(value=webhook_avatar_url,interactive=True,label='Avatar Image URL')
                 _webhook_color = gr.ColorPicker(value="#" + format(webhook_color, 'X'),interactive=True,label='Color')
                 # _webhook_button = gr.Button(label="Generate Embed", variant="primary").click(fn=make_embed,inputs=[_webhook_button])
             with gr.Column():
-                _output = gr.HTML(show_label=False)
+                with gr.Column():
+                    _output = gr.HTML(value=f"Change a value or press the {refresh_symbol} button to generate a preview of the embed.")
+                with gr.Column():
+                    gr.Button(value=refresh_symbol, variant="primary").click(fn=generate_html, outputs=[_output])
         _webhook_content.change(fn=save_content, inputs=[_webhook_content], outputs=[_output])
         _webhook_title.change(fn=save_title, inputs=[_webhook_title], outputs=[_output])
-        _webhook_desciption.change(fn=save_desciption, inputs=[_webhook_desciption], outputs=[_output])
+        _webhook_description.change(fn=save_desciption, inputs=[_webhook_description], outputs=[_output])
         _webhook_footer.change(fn=save_footer, inputs=[_webhook_footer], outputs=[_output])
         _webhook_avatar_name.change(fn=save_avatar_name, inputs=[_webhook_avatar_name], outputs=[_output])
         _webhook_avatar_url.change(fn=save_avatar_url, inputs=[_webhook_avatar_url], outputs=[_output])
@@ -92,34 +93,40 @@ def on_ui_settings():
     shared.opts.add_option("webhook_share_url", shared.OptionInfo("", "Webhook to share the generated images", section=section))
 
 def save_content(input):
-    save_embed(input, "content")
+    return save_embed(input, "content")
 
 def save_title(input):
-    save_embed(input, "title")
+    return save_embed(input, "title")
 
 def save_desciption(input):
-    save_embed(input, "description")
+    return save_embed(input, "description")
 
 def save_footer(input):
-    save_embed(input, "footer")
+    return save_embed(input, "footer")
 
 def save_avatar_name(input):
-    save_embed(input, "avatar_name")
+    return save_embed(input, "avatar_name")
 
 def save_avatar_url(input):
-    save_embed(input, "avatar_url")
+    return save_embed(input, "avatar_url")
 
 def save_color(input):
-    save_embed(input, "color")
+    return save_embed(input, "color")
+
+def generate_html():
+    global webhook_content, webhook_title, webhook_description, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
+    _webhook_color = "#" + format(webhook_color, 'X')
+    nl = "\n"
+    return f'<div class="embed_wrapper"><div style="border-color: {_webhook_color}; max-width: 332px" class="embed_color"><div class="embed_text"><span class="embed_title_wrapper">{webhook_title}</span><div class="embed_description_wrapper"><div class="embed_text desc">{webhook_description + nl}<a href="{embed_url}" style="color: #328DD2" target="_blank">{embed_url}</a></div></div></div></div></div>'
 
 def save_embed(input, key):
-    global webhook_content, webhook_title, webhook_desciption, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
+    global webhook_content, webhook_title, webhook_description, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
     if key == "content":
         webhook_content = input
     elif key == "title":
         webhook_title = input
-    elif key == "desciption":
-        webhook_desciption = input
+    elif key == "description":
+        webhook_description = input
     elif key == "footer":
         webhook_footer = input
     elif key == "avatar_name":
@@ -132,21 +139,21 @@ def save_embed(input, key):
     return generate_html()
 
 def generate_embed():
-    global webhook_content, webhook_title, webhook_desciption, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
-    return {"content":webhook_content,"embeds":[{"title":webhook_title,"url":"","description":webhook_desciption,"color": webhook_color,"footer":{"text":webhook_footer},"timestamp": datetime.datetime.utcnow().isoformat() + "Z"}],"username":webhook_avatar_name,"avatar_url":webhook_avatar_url,"attachments":[]}
+    global webhook_content, webhook_title, webhook_description, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
+    return {"content":webhook_content,"embeds":[{"title":webhook_title,"url":"","description":webhook_description,"color": webhook_color,"footer":{"text":webhook_footer},"timestamp": datetime.datetime.utcnow().isoformat() + "Z"}],"username":webhook_avatar_name,"avatar_url":webhook_avatar_url,"attachments":[]}
 
 def write_embed():
     with open(dir + '\webhook_embed.json', 'w') as f:
         json.dump(generate_embed(), f)
 
 def load_embed():
-    global webhook_content, webhook_title, webhook_desciption, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
+    global webhook_content, webhook_title, webhook_description, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
     try:
         with open(dir + '\webhook_embed.json', 'r') as f:
             embed = json.load(f)
             webhook_content = embed["content"]
             webhook_title = embed["embeds"][0]["title"]
-            webhook_desciption = embed["embeds"][0]["description"]
+            webhook_description = embed["embeds"][0]["description"]
             webhook_footer = embed["embeds"][0]["footer"]["text"]
             webhook_avatar_name = embed["username"]
             webhook_avatar_url = embed["avatar_url"]
@@ -162,21 +169,25 @@ def load_embed():
             os.rename(dir + '\webhook_embed.json', dir + '\webhook_embed.json.old')
         write_embed()
 
-def generate_html():
-    global webhook_content, webhook_title, webhook_desciption, webhook_footer, webhook_avatar_name, webhook_avatar_url, webhook_color
-    _webhook_color = "#" + format(webhook_color, 'X')
-    html = f'<div class="embed_wrapper"><div style="border-color: {_webhook_color}; max-width: 332px" class="embed_color"><div class="embed_text"><span class="embed_title_wrapper">{webhook_title}</span><div class="embed_description_wrapper"><div class="embed_text desc">{webhook_desciption}</div></div></div></div></div>'
-    return html
+load_embed()
 
 script_callbacks.on_app_started(init)
 script_callbacks.on_ui_settings(on_ui_settings)
 script_callbacks.on_ui_tabs(on_ui_tabs)
 
 # TODO:
-# DONE: Share public url to Discord
-# Share generated images to Discord
-# Customize README
-# Make repo public
-# Embed visualizer
-# Button to pose new embed
 # Add placeholder (hints) to textboxes
+# Button to send a new embed
+# Customize README
+# Image sharing implementaion:
+# - Embed customizer for sharing images
+# - Button to share generated images
+# - Option to share all generated images - Off by default
+
+# WORKING ON:
+# Embed visualizer - 1/2 (Share Url Done)
+
+# DONE:
+# Share public url to Discord
+# Make repo public
+# Button to generate new preview
