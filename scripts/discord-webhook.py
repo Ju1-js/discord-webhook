@@ -4,8 +4,7 @@ import datetime
 import os
 from fastapi import FastAPI
 import gradio as gr
-from modules import shared, scripts
-import modules.script_callbacks as script_callbacks
+from modules import shared, scripts, script_callbacks
 
 dir = scripts.basedir()
 embed_url = "http://127.0.0.1:7860/"
@@ -69,7 +68,6 @@ def on_ui_tabs():
                 _webhook_avatar_name = gr.Textbox(value=webhook_avatar_name,interactive=True,label='Avatar Name')
                 _webhook_avatar_url = gr.Textbox(value=webhook_avatar_url,interactive=True,label='Avatar Image URL')
                 _webhook_color = gr.ColorPicker(value="#" + format(webhook_color, 'X'),interactive=True,label='Color')
-                # _webhook_button = gr.Button(label="Generate Embed", variant="primary").click(fn=make_embed,inputs=[_webhook_button])
             with gr.Column():
                 with gr.Column():
                     _output = gr.HTML(value=f"Change a value or press the {refresh_symbol} button to generate a preview of the embed.")
