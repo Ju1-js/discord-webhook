@@ -103,7 +103,7 @@ def on_ui_tabs():
             _webhook_avatar_name.change(fn=save_avatar_name, inputs=[_webhook_avatar_name], outputs=[_output])
             _webhook_avatar_url.change(fn=save_avatar_url, inputs=[_webhook_avatar_url], outputs=[_output])
             _webhook_color.change(fn=save_color, inputs=[_webhook_color], outputs=[_output])
-        with gr.Tab(label="Sharing Embed"):
+        with gr.Tab(label="Share Embed"):
             with gr.Row().style(equal_height=False):
                 with gr.Column(variant='panel'):
                     gr.HTML(value="Edit the embed posted to Discord that shares the generated images")
@@ -277,11 +277,36 @@ def load_embed():
         write_embed()
 
 def share_image():
-    embed = generate_image_embed()
+    print(elements)
+    """ embed = generate_image_embed()
     response = requests.post(shared.opts.webhook_share_url, json=embed, params={"wait": True})
-    print(response)
+    print(response) """
 
 load_embed()
+
+elements = {}
+galleries = {}
+class Script(scripts.Script):
+
+    def title(self):
+        return "Discord Webhooks"
+
+    def show(self, is_img2img):
+        return scripts.AlwaysVisible
+        
+    def after_component(self, component, **kwargs):
+        if kwargs.get('elem_id') is not None:
+            if kwargs.get('elem_id').find('_gallery')!=-1:
+                galleries[component.elem_id] = component
+        if kwargs.get("value") == "Send to extras":
+            """ html_info = gr.HTML()
+            elements["discord_button"] = gr.Button("Post to Discord", elem_id=f"discord_button")
+            elements["discord_button"].click(fn=share_image, _js="(x, y, z, w) => [x, y, z, selected_gallery_index()]", inputs=[galleries,html_info,html_info]) """
+
+    def ui(self, is_img2img):
+        if elements.get("discord_button"):
+            pass
+        return []
 
 script_callbacks.on_app_started(init)
 script_callbacks.on_ui_settings(on_ui_settings)
