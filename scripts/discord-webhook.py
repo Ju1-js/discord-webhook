@@ -280,8 +280,8 @@ def load_embed():
             os.rename(dir + '\webhook_embed.json', dir + '\webhook_embed.json.old')
         write_embed()
 
-def share_image():
-    print(elements)
+def share_image(args):
+    print(type(args))
     """ embed = generate_image_embed()
     response = requests.post(shared.opts.webhook_share_url, json=embed, params={"wait": True})
     print(response) """
@@ -289,7 +289,9 @@ def share_image():
 load_embed()
 
 elements = {}
-galleries = {}
+txt2img = None
+img2img = None
+dummy_component = None
 class Script(scripts.Script):
 
     def title(self):
@@ -299,13 +301,27 @@ class Script(scripts.Script):
         return scripts.AlwaysVisible
         
     def after_component(self, component, **kwargs):
+        global txt2img, img2img, dummy_component
         if kwargs.get('elem_id') is not None:
-            if kwargs.get('elem_id').find('_gallery')!=-1:
-                galleries[component.elem_id] = component
+            if kwargs.get('elem_id').find('txt2img_gallery')!=-1:
+                txt2img = component
+                print(component.elem_id)
+            elif kwargs.get('elem_id').find('img2img_gallery')!=-1:
+                img2img = component
+                print(component.elem_id)
         if kwargs.get("value") == "Send to extras":
-            """ html_info = gr.HTML()
             elements["discord_button"] = gr.Button("Post to Discord", elem_id=f"discord_button")
-            elements["discord_button"].click(fn=share_image, _js="(x, y, z, w) => [x, y, z, selected_gallery_index()]", inputs=[galleries,html_info,html_info]) """
+            dummy_component = gr.Label(visible=False)
+        if txt2img is not None and img2img is not None and dummy_component is not None:
+            elements["discord_button"].click(
+                _js="getImages",
+                fn=share_image,
+                inputs=[
+                    dummy_component,
+                    txt2img,
+                    img2img
+                ]
+            )
 
     def ui(self, is_img2img):
         if elements.get("discord_button"):
