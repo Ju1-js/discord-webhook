@@ -4,7 +4,9 @@ import datetime
 import os
 from fastapi import FastAPI
 import gradio as gr
-from modules import shared, scripts, script_callbacks
+from modules import shared, scripts, script_callbacks, generation_parameters_copypaste
+from PIL import Image
+from io import BytesIO
 
 dir = scripts.basedir()
 embed_url = "http://127.0.0.1:7860/"
@@ -280,18 +282,31 @@ def load_embed():
             os.rename(dir + '\webhook_embed.json', dir + '\webhook_embed.json.old')
         write_embed()
 
-def share_image(args):
-    print(type(args))
-    """ embed = generate_image_embed()
-    response = requests.post(shared.opts.webhook_share_url, json=embed, params={"wait": True})
-    print(response) """
+def share_image(imgdata):
+    """
+    args:
+        imgdata: string, {str: str}, [{str: str}]
+    """
+    """
+    img4post PIL.Image:
+        imgdata -> PIL.Image
+    """
+    print("Converting image...")
+    img4post = generation_parameters_copypaste.image_from_url_text(imgdata)
+    # PIL.Image -> bytes
+    img_bytes = BytesIO()
+    img4post.save(img_bytes, format='PNG')
+    img_bytes = img_bytes.getvalue()
+    print("Converting image... (done)")
+
+    # Send to Discord
+    print("Sending to Discord...")
+    embed = generate_image_embed()
+    response = requests.post(shared.opts.webhook_share_url, json=embed, params={"wait": True}, files={"file.png": img_bytes})
+    print(response)
 
 load_embed()
 
-elements = {}
-txt2img = None
-img2img = None
-dummy_component = None
 class Script(scripts.Script):
 
     def title(self):
@@ -301,31 +316,24 @@ class Script(scripts.Script):
         return scripts.AlwaysVisible
         
     def after_component(self, component, **kwargs):
-        global txt2img, img2img, dummy_component
-        if kwargs.get('elem_id') is not None:
-            if kwargs.get('elem_id').find('txt2img_gallery')!=-1:
-                txt2img = component
-                print(component.elem_id)
-            elif kwargs.get('elem_id').find('img2img_gallery')!=-1:
-                img2img = component
-                print(component.elem_id)
+        gallery = None
+        src_imgdata = None
+        if isinstance(component, gr.Gallery):
+            if component.elem_id in {'txt2img_gallery', 'img2img_gallery'}:
+                gallery = component
+                # print(component.elem_id)
         if kwargs.get("value") == "Send to extras":
-            elements["discord_button"] = gr.Button("Post to Discord", elem_id=f"discord_button")
-            dummy_component = gr.Label(visible=False)
-        if txt2img is not None and img2img is not None and dummy_component is not None:
-            elements["discord_button"].click(
-                _js="getImages",
+            discord_button = gr.Button("Post to Discord", elem_id=f"discord_button")
+            discord_button.click(
                 fn=share_image,
-                inputs=[
-                    dummy_component,
-                    txt2img,
-                    img2img
-                ]
+                inputs = gallery,
+                outputs = src_imgdata,
+                _js="extract_image_from_gallery"
             )
+            
+
 
     def ui(self, is_img2img):
-        if elements.get("discord_button"):
-            pass
         return []
 
 script_callbacks.on_app_started(init)
