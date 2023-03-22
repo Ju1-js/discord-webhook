@@ -411,16 +411,16 @@ def post_image(imgdata: str or dict or list):
     # if not shared.opts.webhook_edit_message and message_id is not None:
     #     requests.delete(f'{shared.opts.webhook_url}/messages/{message_id}')
     #     message_id = None
-    #     send_new_message(embed, True)
+    #     send_new_message(embed)
     #     return
 
     # Send to Discord
     print("[discord_webhooks] Sending to Discord...")
-    send_new_message(embed, True)
+    send_new_message(embed)
     r = requests.post(
         f'{shared.opts.webhook_url}', json=embed, params={"wait": True}, files={"file.png": img_bytes})
     if r.status_code != 200:
-        # send_new_message(embed, True)
+        # send_new_message(embed)
         print(f"Error: {r.status_code} {r.reason}")
         return
     else:
