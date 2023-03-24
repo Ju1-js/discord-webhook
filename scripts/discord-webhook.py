@@ -63,13 +63,13 @@ def send_new_message(embed: dict):
     Sends a new message to the webhook
     args:
         embed: the embed to send
-        has_image: whether the embed has an image
     """
     response = requests.post(shared.opts.webhook_url,
                              json=embed, params={"wait": True})
     message_id = response.json()['id']
     with open(dir + '\webhook_message.json', 'w') as f:
         json.dump(message_id, f)
+
 
 def post_share_url(demo: gr.Blocks):
     if shared.opts.webhook_url != "":
@@ -84,7 +84,7 @@ def post_share_url(demo: gr.Blocks):
             title_url = share_url
         embed = generate_embed()
         embed['embeds'][0]['url'] = title_url
-        embed['embeds'][0]['description'] += '\n' + share_url
+        embed['embeds'][0]['description'] += '\n' + share_url  # type: ignore
         if not shared.opts.webhook_edit_message and message_id is not None:
             requests.delete(f'{shared.opts.webhook_url}/messages/{message_id}')
             message_id = None
@@ -202,7 +202,7 @@ def on_ui_settings():
 
 
 ############################################
-# Support functions for save embed 
+# Support functions for save embed
 ############################################
 def save_content(input):
     return save_embed(input, "content")
@@ -262,6 +262,8 @@ def image_save_color(input):
 ############################################
 # embed generation and saving
 ############################################
+
+
 def generate_image_author(input):
     global webhook_image_author
     webhook_image_author = input
@@ -311,7 +313,7 @@ def save_embed(input, key):
 
 def image_save_embed(input, key):
     """Save each embed's content in a global variable. 
-    Then generate the html and write it to the file."""    
+    Then generate the html and write it to the file."""
     global webhook_image_content, webhook_image_description, webhook_image_footer, webhook_image_avatar_name, webhook_image_avatar_url, webhook_image_color
     if key == "content":
         webhook_image_content = input
@@ -377,7 +379,7 @@ def load_embed():
         write_embed()
 
 
-# TODO: 
+# TODO:
 # Support for embed.
 # Transmission of multiple images.
 # Compression for images over 8MB.
@@ -387,19 +389,20 @@ def post_image(imgdata: str or dict or list):
         imgdata: string, {str: str}, [{str: str}]
     """
     if imgdata is None:
-        print("[discord_webhooks] No image data to share")
+        print("[discord_webhook] No image data to share")
         return
-    if shared.opts.webhook_share_url is None
-        print(bcolors.WARNING + "ERR: No webhook to share the image was provided." + bcolors.ENDC)
+    if shared.opts.webhook_share_url is None:
+        print(bcolors.WARNING +
+              "[discord_webhook] ERR: No webhook to share the image was provided." + bcolors.ENDC)
         return
-    print("[discord_webhooks] Converting image...")
+    print("[discord_webhook] Converting image...")
     # img4post PIL.Image: convert imgdata to PIL.Image
     img4post = generation_parameters_copypaste.image_from_url_text(imgdata)
     # PIL.Image -> bytes
     img_bytes = BytesIO()
     img4post.save(img_bytes, format='PNG')
     img_bytes = img_bytes.getvalue()
-    print("[discord_webhooks] Converting image... (done)")
+    print("[discord_webhook] Converting image... (done)")
 
     # Create embed
     try:
@@ -418,7 +421,7 @@ def post_image(imgdata: str or dict or list):
     #     return
 
     # Send to Discord
-    print("[discord_webhooks] Sending to Discord...")
+    print("[discord_webhook] Sending to Discord...")
     send_new_message(embed)
     r = requests.post(
         f'{shared.opts.webhook_share_url}', json=embed, params={"wait": True}, files={"file.png": img_bytes})
@@ -427,16 +430,18 @@ def post_image(imgdata: str or dict or list):
         print(f"Error: {r.status_code} {r.reason}")
         return
     else:
-        print("[discord_webhooks] Sending to Discord... (done)")
+        print("[discord_webhook] Sending to Discord... (done)")
 
 
 load_embed()
 
 gallery = None
+
+
 class Script(scripts.Script):
 
     def title(self):
-        return "Discord Webhooks"
+        return "Discord Webhook"
 
     def show(self, is_img2img):
         return scripts.AlwaysVisible
@@ -447,10 +452,11 @@ class Script(scripts.Script):
         if isinstance(component, gr.Gallery):
             if component.elem_id in {'txt2img_gallery', 'img2img_gallery'}:
                 gallery = component
-                # print("[discord_webhooks] Found gallery: " + component.elem_id)
+                # print("[discord_webhook] Found gallery: " + component.elem_id)
         if kwargs.get("value") == "Send to extras":
-            # print("[discord_webhooks] gallery.elem_id: " + gallery.elem_id)
-            discord_button = gr.Button("Post to Discord", elem_id=f"discord_button")
+            # print("[discord_webhook] gallery.elem_id: " + gallery.elem_id)
+            discord_button = gr.Button(
+                "Post to Discord", elem_id=f"discord_button")
             discord_button.click(
                 fn=post_image,
                 inputs=gallery,
