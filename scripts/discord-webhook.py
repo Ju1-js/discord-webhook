@@ -95,7 +95,7 @@ def post_share_url(demo: gr.Blocks):
         if r.status_code != 200:
             send_new_message(embed)
     else:
-        print(bcolors.ERROR + "ERR: No webhook url provided" + bcolors.ENDC)
+        print(bcolors.ERROR + "ERR: No webhook url was provided." + bcolors.ENDC)
 
 
 def on_ui_tabs():
@@ -389,6 +389,9 @@ def post_image(imgdata: str or dict or list):
     if imgdata is None:
         print("[discord_webhooks] No image data to share")
         return
+    if shared.opts.webhook_share_url is None
+        print(bcolors.WARNING + "ERR: No webhook to share the image was provided." + bcolors.ENDC)
+        return
     print("[discord_webhooks] Converting image...")
     # img4post PIL.Image: convert imgdata to PIL.Image
     img4post = generation_parameters_copypaste.image_from_url_text(imgdata)
@@ -471,16 +474,16 @@ script_callbacks.on_ui_tabs(on_ui_tabs)
 #    - Find a suitable placeholder image (Gradio Icon?)
 # Customize README
 # Add tooltips to settings
-# Image sharing implementaion:
-# - Embed customizer for sharing images
-# - Button to share generated images
-# - Option to share all generated images - Off by default
-# warning when no webhook_share_url is provided 
+# Embed customizer for sharing images
+# Option to share all generated images - Off by default
+# Use api for username ./user/
 
 # WORKING ON:
 # Embed visualizer - 1/2 (Share Url Half Done), (Display Footer Message, Avatar Name, Avatar Url, Content(Message) DONE)
+# Button to share generated images - Share grid and first 3 if no image is selected
 
 # DONE:
 # Share public url to Discord
 # Make repo public
 # Button to generate new preview
+# Warning when no webhook_share_url is provided
