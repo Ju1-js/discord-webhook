@@ -95,7 +95,7 @@ def post_share_url(demo: gr.Blocks):
         if r.status_code != 200:
             send_new_message(embed)
     else:
-        print(bcolors.ERROR + "ERR: No webhook url was provided." + bcolors.ENDC)
+        print(bcolors.WARNING + "WRN: No webhook url was provided to share the web UI." + bcolors.ENDC)
 
 
 def on_ui_tabs():
