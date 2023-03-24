@@ -409,7 +409,7 @@ def post_image(imgdata: str or dict or list):
     # Image attachment for send_new_message is not implemented (wip)
     ######
     # if not shared.opts.webhook_edit_message and message_id is not None:
-    #     requests.delete(f'{shared.opts.webhook_url}/messages/{message_id}')
+    #     requests.delete(f'{shared.opts.webhook_share_url}/messages/{message_id}')
     #     message_id = None
     #     send_new_message(embed)
     #     return
@@ -418,7 +418,7 @@ def post_image(imgdata: str or dict or list):
     print("[discord_webhooks] Sending to Discord...")
     send_new_message(embed)
     r = requests.post(
-        f'{shared.opts.webhook_url}', json=embed, params={"wait": True}, files={"file.png": img_bytes})
+        f'{shared.opts.webhook_share_url}', json=embed, params={"wait": True}, files={"file.png": img_bytes})
     if r.status_code != 200:
         # send_new_message(embed)
         print(f"Error: {r.status_code} {r.reason}")
@@ -475,6 +475,7 @@ script_callbacks.on_ui_tabs(on_ui_tabs)
 # - Embed customizer for sharing images
 # - Button to share generated images
 # - Option to share all generated images - Off by default
+# warning when no webhook_share_url is provided 
 
 # WORKING ON:
 # Embed visualizer - 1/2 (Share Url Half Done), (Display Footer Message, Avatar Name, Avatar Url, Content(Message) DONE)
