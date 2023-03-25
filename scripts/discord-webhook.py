@@ -433,13 +433,8 @@ def post_image(imgdata: str or dict or list):
     #     return
 
     # Send to Discord
-<<<<<<< Updated upstream
     print("[discord_webhook] Sending to Discord...")
-    send_new_message(embed)
-=======
-    print("[discord_webhooks] Sending to Discord...")
     send_new_message(embed, True)
->>>>>>> Stashed changes
     r = requests.post(
         f'{shared.opts.webhook_share_url}', json=embed, params={"wait": True}, files={"file.png": img_bytes})
     if r.status_code != 200:
