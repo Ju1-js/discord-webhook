@@ -23,7 +23,6 @@ webhook_image_footer = "Generated at"
 webhook_image_avatar_name = "Gradio"
 webhook_image_avatar_url = "https://gradio.app/assets/img/logo.png"
 webhook_image_color = 15376729
-webhook_image_author = ""
 webhook_image_prompt = False
 share_warn = False
 refresh_symbol = '\U0001f504'  # 🔄
@@ -59,17 +58,21 @@ def init(demo: gr.Blocks, app: FastAPI):
             share_warn = True
 
 
-def send_new_message(embed: dict):
+def send_new_message(embed: dict, has_image: bool = False):
     """
     Sends a new message to the webhook
     args:
         embed: the embed to send
     """
-    response = requests.post(shared.opts.webhook_url,
+    if has_image:
+        response = requests.post(shared.opts.webhook_share_url,
+                                 json=embed, params={"wait": True})
+    else:
+        response = requests.post(shared.opts.webhook_url,
                              json=embed, params={"wait": True})
-    message_id = response.json()['id']
-    with open(dir + '\webhook_message.json', 'w') as f:
-        json.dump(message_id, f)
+        message_id = response.json()['id']
+        with open(dir + '\webhook_message.json', 'w') as f:
+            json.dump(message_id, f)
 
 
 def post_share_url(demo: gr.Blocks):
@@ -334,14 +337,19 @@ def image_save_embed(input, key):
 
 
 def generate_embed():
-    global webhook_image_author
-    webhook_image_author = requests.post(embed_url + "/user/")
+    print(embed_url + "/user/")
+    webhook_image_author = requests.get(embed_url + "/user/", {'accept': 'application/json'}).text
+    print(webhook_image_author)
+    print(requests.get(embed_url + "/user/", {'accept': 'application/json'}).text)
     return {"content": webhook_content, "embeds": [{"title": webhook_title, "url": "", "description": webhook_description, "color": webhook_color, "footer": {"text": webhook_footer}, "timestamp": datetime.datetime.utcnow().isoformat() + "Z"}], "username": webhook_avatar_name, "avatar_url": webhook_avatar_url, "attachments": []}
 
 
 def generate_image_embed():
-    global webhook_image_author
-    webhook_image_author = requests.post(embed_url + "/user/")
+    # set webhook_image_author to the user's name by a request to the api /user/
+    print(embed_url + "/user/")
+    webhook_image_author = requests.get(embed_url + "/user/", {'accept': 'application/json'}).text
+    print(webhook_image_author)
+    print(requests.get(embed_url + "/user/", {'accept': 'application/json'}).text)
     return {"content": webhook_image_content, "embeds": [{"title": "", "url": "", "description": webhook_image_description, "color": webhook_image_color, "author": {"name": webhook_image_description + webhook_image_author}, "footer": {"text": webhook_image_footer}, "timestamp": datetime.datetime.utcnow().isoformat() + "Z"}], "username": webhook_image_avatar_name, "avatar_url": webhook_avatar_url, "attachments": []}
 
 
@@ -425,6 +433,7 @@ def post_image(imgdata: str or dict or list):
     #     return
 
     # Send to Discord
+<<<<<<< Updated upstream
     print("[discord_webhook] Sending to Discord...")
     send_new_message(embed)
     r = requests.post(
