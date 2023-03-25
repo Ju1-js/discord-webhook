@@ -338,18 +338,17 @@ def image_save_embed(input, key):
 
 def generate_embed():
     print(embed_url + "/user/")
-    webhook_image_author = requests.get(embed_url + "/user/").text
+    webhook_image_author = requests.get(embed_url + "/user/").content
     print(webhook_image_author)
-    print(requests.get(embed_url + "/user/").text)
+    print(requests.get(embed_url + "/user/").content)
     return {"content": webhook_content, "embeds": [{"title": webhook_title, "url": "", "description": webhook_description, "color": webhook_color, "footer": {"text": webhook_footer}, "timestamp": datetime.datetime.utcnow().isoformat() + "Z"}], "username": webhook_avatar_name, "avatar_url": webhook_avatar_url, "attachments": []}
 
 
 def generate_image_embed():
-    # set webhook_image_author to the user's name by a request to the api /user/
     print(embed_url + "/user/")
-    webhook_image_author = requests.get(embed_url + "/user/").text
+    webhook_image_author = requests.get(embed_url + "/user/").content
     print(webhook_image_author)
-    print(requests.get(embed_url + "/user/").text)
+    print(requests.get(embed_url + "/user/").content)
     return {"content": webhook_image_content, "embeds": [{"title": "", "url": "", "description": webhook_image_description, "color": webhook_image_color, "author": {"name": webhook_image_description + webhook_image_author}, "footer": {"text": webhook_image_footer}, "timestamp": datetime.datetime.utcnow().isoformat() + "Z"}], "username": webhook_image_avatar_name, "avatar_url": webhook_avatar_url, "attachments": []}
 
 
