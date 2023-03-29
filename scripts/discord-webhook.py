@@ -337,19 +337,11 @@ def image_save_embed(input, key):
 
 
 def generate_embed():
-    print(embed_url + "/user/")
-    webhook_image_author = requests.get(embed_url + "/user/").text
-    print(webhook_image_author)
-    print(requests.get(embed_url + "/user/").text)
     return {"content": webhook_content, "embeds": [{"title": webhook_title, "url": "", "description": webhook_description, "color": webhook_color, "footer": {"text": webhook_footer}, "timestamp": datetime.datetime.utcnow().isoformat() + "Z"}], "username": webhook_avatar_name, "avatar_url": webhook_avatar_url, "attachments": []}
 
 
-def generate_image_embed():
-    # set webhook_image_author to the user's name by a request to the api /user/
-    print(embed_url + "/user/")
-    webhook_image_author = requests.get(embed_url + "/user/").text
-    print(webhook_image_author)
-    print(requests.get(embed_url + "/user/").text)
+def generate_image_embed(url):
+    webhook_image_author = requests.get(url + "/user/").text
     return {"content": webhook_image_content, "embeds": [{"title": "", "url": "", "description": webhook_image_description, "color": webhook_image_color, "author": {"name": webhook_image_description + webhook_image_author}, "footer": {"text": webhook_image_footer}, "timestamp": datetime.datetime.utcnow().isoformat() + "Z"}], "username": webhook_image_avatar_name, "avatar_url": webhook_avatar_url, "attachments": []}
 
 
@@ -395,12 +387,13 @@ def load_embed():
 # Support for embed.
 # Transmission of multiple images.
 # Compression for images over 8MB.
-def post_image(imgdata: str or dict or list):
+def post_image(data: list):
     """
     args:
-        imgdata: string, {str: str}, [{str: str}]
+        data: [string, {str: str}, [{str: str}], string]
     """
-    if imgdata is None:
+    print(data)
+    if data[0] is None:
         print("[discord_webhook] No image data to share")
         return
     if shared.opts.webhook_share_url is None:
@@ -408,8 +401,8 @@ def post_image(imgdata: str or dict or list):
               "ERR: No webhook to share the image was provided." + bcolors.ENDC)
         return
     print("[discord_webhook] Converting image...")
-    # img4post PIL.Image: convert imgdata to PIL.Image
-    img4post = generation_parameters_copypaste.image_from_url_text(imgdata)
+    # img4post PIL.Image: convert data[0] to PIL.Image
+    img4post = generation_parameters_copypaste.image_from_url_text(data[0])
     # PIL.Image -> bytes
     img_bytes = BytesIO()
     img4post.save(img_bytes, format='PNG')
@@ -422,7 +415,7 @@ def post_image(imgdata: str or dict or list):
             message_id = json.load(f)
     except:
         message_id = None
-    embed = generate_image_embed()
+    embed = generate_image_embed(data[1])
     ######
     # Image attachment for send_new_message is not implemented (wip)
     ######
@@ -473,7 +466,7 @@ class Script(scripts.Script):
                 fn=post_image,
                 inputs=gallery,
                 outputs=src_imgdata,
-                _js="extract_image_from_gallery"
+                _js="image_and_url"
             )
 
     def ui(self, is_img2img):
