@@ -387,13 +387,13 @@ def load_embed():
 # Support for embed.
 # Transmission of multiple images.
 # Compression for images over 8MB.
-def post_image(data: list):
+def post_image(imgdata: str or dict or list, url: str):
     """
     args:
-        data: [string, {str: str}, [{str: str}], string]
+        imgdata: string, {str: str}, [{str: str}]
+        url: string
     """
-    print(data)
-    if data[0] is None:
+    if imgdata is None:
         print("[discord_webhook] No image data to share")
         return
     if shared.opts.webhook_share_url is None:
@@ -401,8 +401,8 @@ def post_image(data: list):
               "ERR: No webhook to share the image was provided." + bcolors.ENDC)
         return
     print("[discord_webhook] Converting image...")
-    # img4post PIL.Image: convert data[0] to PIL.Image
-    img4post = generation_parameters_copypaste.image_from_url_text(data[0])
+    # img4post PIL.Image: convert imgdata to PIL.Image
+    img4post = generation_parameters_copypaste.image_from_url_text(imgdata)
     # PIL.Image -> bytes
     img_bytes = BytesIO()
     img4post.save(img_bytes, format='PNG')
@@ -415,7 +415,7 @@ def post_image(data: list):
             message_id = json.load(f)
     except:
         message_id = None
-    embed = generate_image_embed(data[1])
+    embed = generate_image_embed(url)
     ######
     # Image attachment for send_new_message is not implemented (wip)
     ######
